@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="css/styles.css"> <!-- Jūsų stilius -->
+</head>
+<body>
+
+<!-- Pokalbio puslapis -->
+<div id="chat-page">
+    <div id="user-list">
+        <h3>Prisijungę vartotojai</h3>
+        <ul id="users"></ul> <!-- Čia rodysime vartotojų sąrašą -->
+    </div>
+
+    <div id="messages-section">
+        <div id="messages"></div> <!-- Čia rodysime žinutes -->
+        <input type="text" id="message-input" placeholder="Įveskite žinutę" />
+        <button onclick="sendMessage()">Siųsti</button>
+        <button onclick="leaveChat()">Palikti pokalbį</button>
+    </div>
+</div>
+
+<script src="js/websocket.js"></script> <!-- Jūsų WebSocket logika -->
+</body>
+</html>

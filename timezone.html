@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Time Clock with Timezones</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@latest/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        #clock {
+            font-size: 48px;   /* Pakeičia laikrodžio dydį */
+            font-weight: bold; /* Padaro tekstą storesnį */
+            color: #333;       /* Nustato spalvą */
+            text-align: above "timezone-select"; /* Centruoja tekstą */
+            margin-top: 20px;  /* Nustato tarpą virš laikrodžio */
+            font-family: 'Arial', sans-serif; /* Šrifto šeima */
+        }
+    </style>
+
+
+
+</head>
+<body>
+    <h1>Laiko juostos pagal salis</h1>
+   
+    <div id="clock">--:--</div> 
+   
+
+    <label for="timezone-select">Pasirink norima sali:</label>
+    <select id="timezone-select">
+        <option value="Europe/Berlin">Germany (-1)</option>
+        <option value="Asia/Tokyo">Japan (+6)</option>
+        <option value="America/New_York">New York (-7)</option>
+        <option value="Europe/Vilnius">Lithuania (vietinis)</option>
+    </select>
+
+   
+
+    <script>
+        var stompClient = null;
+
+        function connect() {
+            var socket = new SockJS('http://localhost:8080/websocket');  
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+
+                stompClient.subscribe('/topic/time', function (message) {
+                    console.log('Received time message: ' + message.body);  
+                    updateTime(message.body);
+                });
+
+                sendTimezone();  
+            }, function (error) {
+                console.log('Error: ' + error);
+            });
+        }
+
+        function updateTime(timeMessage) {
+            var timeData = JSON.parse(timeMessage);
+            document.getElementById("clock").innerText = timeData.time;
+        }
+
+        function sendTimezone() {
+            var selectedZone = document.getElementById('timezone-select').value;
+            stompClient.send("/app/setTimezone", {}, JSON.stringify({ zone: selectedZone }));
+        }
+
+        // Event listener for timezone changes
+        document.getElementById('timezone-select').addEventListener('change', function () {
+            sendTimezone();
+        });
+
+        // Connect to WebSocket on page load
+        window.onload = connect;
+    </script>
+</body>
+</html>
+
